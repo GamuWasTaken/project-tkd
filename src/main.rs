@@ -66,3 +66,48 @@ pub trait Component<'a, Message: 'a>: Default {
         Subscription::none()
     }
 }
+
+mod searcher {
+    use iced::widget::{column, scrollable, text_input, Column};
+
+    use super::*;
+    // search bar
+    // result tab
+
+    #[derive(Default)]
+    pub struct SearchBar {
+        content: String,
+    }
+
+    #[derive(Default)]
+    pub struct ResultPad<'a> {
+        results: Vec<Element<'a, Message>>,
+    }
+
+    #[derive(Debug, Clone)]
+    pub enum Message {
+        ContentChanged(String),
+    }
+
+    impl Component<'_, Message> for SearchBar {
+        fn view(&'_ self) -> Element<'_, Message> {
+            text_input("Search...", &self.content)
+                .on_input(Message::ContentChanged)
+                .into()
+        }
+        fn update(&mut self, message: Message) -> Task<Message> {
+            match message {
+                Message::ContentChanged(content) => self.content = content,
+            };
+
+            Task::none()
+        }
+    }
+
+    impl Component<'_, Message> for ResultPad<'_> {
+        fn view(&'_ self) -> Element<'_, Message> {
+            scrollable(column(self.results.iter().copied())).into()
+        }
+        fn update(&mut self, _message: Message) -> Task<Message> {}
+    }
+}
